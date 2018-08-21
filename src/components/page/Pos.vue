@@ -1,34 +1,42 @@
 <template>
     <div class="pos">
-       <div>
-           
+       <div>       
            <el-row>
                <!-- 订单栏 -->
                <el-col :span="7" id="order-list">
                    <el-tabs>
                        <el-tab-pane label="点餐">
                            <!-- 点餐 -->
-                            <el-table :data="tableData" border show-summary style="width: 100%">
+                            <el-table :data="tableData" border style="width: 100%">
                                 <el-table-column prop="goodsName" label="商品"></el-table-column>
-                                <el-table-column prop="count" label="量" width="50"></el-table-column>
+                                <el-table-column prop="count" label="数量" width="50"></el-table-column>
                                 <el-table-column prop="price" label="金额" width="70"></el-table-column>
 
                                 <el-table-column label="操作" width="100" fiexed="right">
-                                    <template scope="scope">
+                                    <template slot-scope="scope">
                                         <el-button type="text" size="small" @click="delSingleGoods(scope.row)">删除</el-button>
                                         <el-button type="text" size="small" @click="addOrderList(scope.row)">增加</el-button>
 
                                     </template>
                                 </el-table-column>
                             </el-table>
-                            <el-button type="warning" >挂单</el-button>
-                            <el-button type="danger" >删除</el-button>
-                            <el-button type="success" @click="checkout" >结账</el-button>
+                            <div class="totalDiv">
+                                <small>数量：</small>
+                                <strong>{{totalCount}}</strong> &nbsp;&nbsp;&nbsp;&nbsp;
+                                <small>总计：</small>
+                                <strong>{{totalMoney}}</strong> 元
+                            </div>
+                            <div class="order-btn">
+                                <el-button type="warning" >挂单</el-button>
+                                <el-button type="danger" @click="delAllGoods()">删除</el-button>
+                                <el-button type="success" @click="checkout()" >结账</el-button>
+                            </div>
+                           
                        </el-tab-pane>
 
                         
                        <el-tab-pane label="挂单">
-                           挂单                           
+                           挂单                      
                        </el-tab-pane>
                        <el-tab-pane label="外卖">
                            外卖
@@ -43,7 +51,7 @@
                        </div>
                        <div class="often-goods-list">
                            <ul>
-                               <li v-for="(goods, index) in oftenGoods" :key="index">
+                               <li v-for="(goods, index) in oftenGoods" :key="index" @click="addOrderList(goods)">
                                    <span>{{goods.goodsName}}</span>
                                    <span class="o-price">￥{{goods.price}}元</span>
                                 </li>
@@ -54,7 +62,7 @@
                         <el-tabs>
                             <el-tab-pane label="汉堡">
                                 <ul class="cookList">
-                                    <li v-for="goods in often1Goods" @click="addOrderList(goods)">
+                                    <li v-for="(goods, index) in often0Goods" @click="addOrderList(goods)" :key="index">
                                         <span class="foodImg"><img :src="goods.goodsImg" alt="" width="100%"></span>
                                         <span class="foodName">{{goods.goodsName}}</span>
                                         <span class="foodPrice">￥{{goods.price}}元</span>
@@ -62,13 +70,31 @@
                                 </ul>
                             </el-tab-pane>
                             <el-tab-pane label="小食">
-                                小食
+                               <ul class="cookList">
+                                    <li v-for="(goods, index) in often1Goods" @click="addOrderList(goods)" :key="index">
+                                        <span class="foodImg"><img :src="goods.goodsImg" alt="" width="100%"></span>
+                                        <span class="foodName">{{goods.goodsName}}</span>
+                                        <span class="foodPrice">￥{{goods.price}}元</span>
+                                    </li>
+                                </ul>
                             </el-tab-pane>
                             <el-tab-pane label="饮料">
-                                饮料
+                                <ul class="cookList">
+                                    <li v-for="(goods, index) in often2Goods" @click="addOrderList(goods)" :key="index">
+                                        <span class="foodImg"><img :src="goods.goodsImg" alt="" width="100%"></span>
+                                        <span class="foodName">{{goods.goodsName}}</span>
+                                        <span class="foodPrice">￥{{goods.price}}元</span>
+                                    </li>
+                                </ul>
                             </el-tab-pane>
                             <el-tab-pane label="套餐">
-                                套餐
+                                <ul class="cookList">
+                                    <li v-for="(goods, index) in often3Goods" @click="addOrderList(goods)" :key="index">
+                                        <span class="foodImg"><img :src="goods.goodsImg" alt="" width="100%"></span>
+                                        <span class="foodName">{{goods.goodsName}}</span>
+                                        <span class="foodPrice">￥{{goods.price}}元</span>
+                                    </li>
+                                </ul>
                             </el-tab-pane>
                         </el-tabs>
 
@@ -79,36 +105,37 @@
     </div>
 </template>
 <script>
-    import axios from 'axios'
+import axios from 'axios'
 
 export default {
 
     name: 'Pos',
     data () {
         return {
-            tableData: [{
+            // tableData: [{
                 
-                goodsName: '可口可乐',
-                price: 8,
-                count:1
-                }, {
+            //     goodsName: '可口可乐',
+            //     price: 8,
+            //     count:1
+            //     }, {
                 
-                goodsName: '香辣鸡腿堡',
-                price: 15,
-                count:1
-                }, {
+            //     goodsName: '香辣鸡腿堡',
+            //     price: 15,
+            //     count:1
+            //     }, {
                 
-                goodsName: '爱心薯条',
-                price: 8,
-                count:1
-                }, {
+            //     goodsName: '爱心薯条',
+            //     price: 8,
+            //     count:1
+            //     }, {
                 
-                goodsName: '甜筒',
-                price: 8,
-                count:1
-                }],
-
-            oftenGoods:[
+            //     goodsName: '甜筒',
+            //     price: 8,
+            //     count:1
+            //     }],
+            tableData:[],
+            oftenGoods:[],
+            often0Goods:[
                 // {
                 //     goodsId:1,
                 //     goodsName:'香辣鸡腿堡',
@@ -207,14 +234,19 @@ export default {
             
             ],
             often2Goods:[],
-            often3Goods:[]
+            often3Goods:[],
+            totalMoney: 0,
+            totalCount: 0
+
         }
     },
     mounted:function(){
         var orderHeight=document.body.clientHeight;
         document.getElementById("order-list").style.height=orderHeight+'px';
     },
+
     created() {
+        // 读取常用列表数据
         axios.get('http://jspang.com/DemoApi/oftenGoods.php')
         .then( response => {
             console.log(response);
@@ -224,7 +256,7 @@ export default {
             console.log(error);
             alert('网络错误，不能访问')
         })
-
+        // 读取分类列表数据
         axios.get('http://jspang.com/DemoApi/typeGoods.php')
         .then( response => {
             console.log(response);
@@ -245,7 +277,7 @@ export default {
             this.totalCount=0; //汇总数量清0
             this.totalMoney=0;
             let isHave=false;
-          
+            
             //判断是否这个商品已经存在于订单列表
             for (let i=0; i<this.tableData.length;i++){
                 console.log(this.tableData[i].goodsId);
@@ -266,20 +298,25 @@ export default {
                 this.tableData.push(newGoods);
 
             }
+
+           
         
-            //进行数量和价格的汇总计算
-            this.tableData.forEach((element) => {
-                this.totalCount+=element.count;
-                this.totalMoney=this.totalMoney+(element.price*element.count);   
-            });
+            // //进行数量和价格的汇总计算
+            // this.tableData.forEach((element) => {
+            //     console.log(element);
+            //     this.totalCount+=element.count;
+            //     this.totalMoney=this.totalMoney+(element.count*element.price);   
+            // });
+            this.getAllMoney();
         },
 
         //删除单个商品
         delSingleGoods(goods){
             console.log(goods);
-            this.tableData=this.tableData.filter(o => o.goodsId !=goods.goodsId);
-    
+            this.tableData=this.tableData.filter(o => o.goodsId != goods.goodsId ); 
+            this.getAllMoney();        
         },
+
         //删除所有商品
         delAllGoods() {
             this.tableData = [];
@@ -292,25 +329,27 @@ export default {
             this.totalCount=0;
             this.totalMoney=0;
             if(this.tableData){
-                    this.tableData.forEach((element) => {
-                this.totalCount+=element.count;
-                this.totalMoney=this.totalMoney+(element.price*element.count);   
+                this.tableData.forEach((element) => {
+                    console.log(element);
+                    this.totalCount+=element.count;
+                    this.totalMoney=this.totalMoney+(element.price*element.count);   
                 });
             }
             
         },
+        // 结账
         checkout() {
             if (this.totalCount!=0) {
                 this.tableData = [];
                 this.totalCount = 0;
                 this.totalMoney = 0;
                 this.$message({
-                    message: '结账成功，感谢你又为店里出了一份力!',
+                    message: `结账成功`,
                     type: 'success'
                 });
         
             }else{
-                this.$message.error('不能空结。老板了解你急切的心情！');
+                this.$message.error('还未选择商品！');
             }
         
         }
